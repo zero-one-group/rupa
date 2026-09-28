@@ -1,0 +1,8 @@
+{
+  "name": "xlang-zod",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "zod": "^4.0.0"
+  }
+}

@@ -1,0 +1,8 @@
+;; Pinned here and in the Dockerfile. This is the one column that is written from Malli's own
+;; documentation rather than from a run -- Maven Central is not reachable from the sandbox the
+;; rest of this directory was built in, so a version that does not resolve is a loud failure on
+;; the first `docker build` rather than a wrong number in a table.
+{:paths ["src"]
+ :deps {org.clojure/clojure {:mvn/version "1.12.0"}
+        metosin/malli {:mvn/version "0.16.4"}
+        metosin/jsonista {:mvn/version "0.3.11"}}}

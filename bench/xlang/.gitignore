@@ -1,0 +1,8 @@
+# Build output from the four toolchains this directory drives. The lockfiles beside these are
+# committed on purpose: the Dockerfile pins the toolchains and the lockfiles pin what they
+# resolved to, which is what makes a number in the README reproducible rather than a number
+# from whatever happened to be current that day.
+rust/target/
+js/node_modules/
+clojure/.cpcache/
+python/__pycache__/

@@ -1,0 +1,72 @@
+# Secret-free, and every command here is one you run locally. The workflow adds caching, the
+# floor check and the docs build -- nothing else.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# No MIX_ENV: `mix check.all` sets its own (mix.exs `preferred_envs`) and the `mix docs` after
+# it runs in dev, where ex_doc lives. Each step runs in the env it would locally.
+
+jobs:
+  ci:
+    name: mix check.all
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      # Elixir/OTP come from .tool-versions -- one home for the pin, shared with asdf/mise
+      # locally. Exact, because CI is the only place besides the maintainer's machine where
+      # the 1.20 type checker runs.
+      - uses: erlef/setup-beam@v1
+        with:
+          version-file: .tool-versions
+          version-type: strict
+
+      # mix.lock and .tool-versions are exactly what invalidates deps and _build.
+      - uses: actions/cache@v6
+        with:
+          path: |
+            deps
+            _build
+          key: mix-${{ runner.os }}-${{ hashFiles('.tool-versions', 'mix.lock') }}
+          restore-keys: mix-${{ runner.os }}-
+
+      - run: mix local.hex --force && mix local.rebar --force
+      - run: mix deps.get --check-locked
+
+      # The backstop for the incremental compiler: `_build` comes from cache, and
+      # `warnings_as_errors` only holds for files the compiler actually touches.
+      - run: MIX_ENV=test mix compile --force
+
+      - run: mix check.all
+      - run: mix docs
+      - run: mix run bench/compare.exs
+
+  # The floor mix.exs promises, compiled and tested on the oldest pair it names. No format
+  # check and no Credo: both move between versions, the library does not. What goes red here is
+  # a stdlib function newer than the floor, or a dependency raising its own.
+  floor:
+    name: Elixir 1.18 / OTP 27 floor
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: "1.18"
+          otp-version: "27"
+      - run: mix local.hex --force && mix local.rebar --force
+      - run: mix deps.get --check-locked
+      - run: MIX_ENV=test mix compile --force
+      - run: mix test

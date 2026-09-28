@@ -1,0 +1,12 @@
+{
+  "id": "abc",
+  "name": "Ada",
+  "active": true,
+  "score": 9.5,
+  "profile": {
+    "age": 40,
+    "city": "Jakarta",
+    "settings": { "theme": "dark", "size": 14 }
+  },
+  "tags": ["a", "b"]
+}

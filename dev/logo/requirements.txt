@@ -1,0 +1,4 @@
+fonttools>=4.50
+uharfbuzz>=0.40
+cairosvg>=2.7
+Pillow>=10

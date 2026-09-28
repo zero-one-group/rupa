@@ -1,0 +1,14 @@
+# What bench/xlang/Dockerfile must not copy in. It builds from the repository root, because
+# Rupa's own column runs against the working tree -- and everything below is either rebuilt in
+# the image or has no business in it.
+.git/
+_build/
+deps/
+doc/
+cover/
+bench/xlang/rust/target/
+bench/xlang/js/node_modules/
+bench/xlang/clojure/.cpcache/
+erl_crash.dump
+*.ez
+rupa-*.tar
